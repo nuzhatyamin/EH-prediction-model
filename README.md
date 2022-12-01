@@ -2,7 +2,7 @@
 Code for ISPLED'21 paper. A hierarchical machine learning model to predict solar energy harvest in the future.
 
 Please cite our work using the following way if you find it motivating to your work. 
-'''
+```
 @inproceedings{yamin2021online,
   title={Online solar energy prediction for energy-harvesting internet of things devices},
   author={Yamin, Nuzhat and Bhat, Ganapati},
@@ -11,7 +11,7 @@ Please cite our work using the following way if you find it motivating to your w
   year={2021},
   organization={IEEE}
 }
-'''
+```
 ## How to Use
 - **Required Dependency:** 
   - MATLAB Deep learning toolbox
