@@ -209,23 +209,25 @@ noon_counter = 1;
 morning_counter_nn1 = {1,1,1};
 morning_energy_predictions = cell(1, length(labels_morning));       %Energy prediction offline
 
-acc_offline_morning = cell(1, length(labels_morning));
+acc_offline_morning_nn1 = cell(1, length(labels_morning));
 
 noon_counter_nn1 = {1,1,1};
 noon_energy_predictions = cell(1, length(labels_noon));         %Energy prediction offline
-acc_offline_noon = cell(1, length(labels_noon)); 
+acc_offline_noon_nn1 = cell(1, length(labels_noon)); 
 
 actual_morning_counter = 1;
 actual_noon_counter = 1;
 
 max_buffer = 20; %Maximum No. of examples in the buffer
 buffer_matrix_morning = cell(1, length(labels_morning));
-energy_predictions_online_morning = cell(1, length(labels_morning));
-acc_online_morning = cell(1, length(labels_morning));
+energy_predictions_by_adapt_morning = cell(1, length(labels_morning));
+acc_online_morning_adapt = cell(1, length(labels_morning));
+acc_offline_morning_adapt = cell(1, length(labels_morning));
 
 buffer_matrix_noon = cell(1, length(labels_noon));
-energy_predictions_online_noon = cell(1, length(labels_noon));
-acc_online_noon = cell(1, length(labels_noon));
+energy_predictions_by_adapt_noon = cell(1, length(labels_noon));
+acc_online_noon_adapt = cell(1, length(labels_noon));
+acc_offline_noon_adapt = cell(1, length(labels_noon));
 
 actual_test_morning_cell = cell(1, length(labels_morning));
 curr_network_cell_morning = cell(1, length(labels_morning));
@@ -260,7 +262,7 @@ for i = 1:size(feature_matrix_test, 1)
         actual_test_morning_cell{current_label}(morning_counter_nn1{current_label}) = actual_energy;
         
         energy_pred_adapt =  curr_networks_cell_morning{current_label}(curr_features');
-        energy_predictions_online_morning{current_label} = [energy_predictions_online_morning{current_label}; energy_pred_adapt];
+        energy_predictions_by_adapt_morning{current_label} = [energy_predictions_by_adapt_morning{current_label}; energy_pred_adapt];
         curr_buffer_entry = [curr_features, actual_energy];
         
         %Set condition for updating buffer matrix
@@ -277,15 +279,13 @@ for i = 1:size(feature_matrix_test, 1)
             curr_networks_cell_morning{current_label} = new_net;
         end
         %check accuracy with and without online learning 
-        offline_acc = mean(abs(actual_test_morning_cell{current_label}(1:morning_counter_nn1{current_label})' - ...
+        offline_acc_nn1= mean(abs(actual_test_morning_cell{current_label}(1:morning_counter_nn1{current_label})' - ...
             morning_energy_predictions{current_label}(1:morning_counter_nn1{current_label})));
-        online_acc = mean(abs(actual_test_morning_cell{current_label}(1:morning_counter_nn1{current_label})' - ...
-        energy_predictions_online_morning{current_label}(1:morning_counter_nn1{current_label})));
+        online_acc_adapt = mean(abs(actual_test_morning_cell{current_label}(1:morning_counter_nn1{current_label})' - ...
+        energy_predictions_by_adapt_morning{current_label}(1:morning_counter_nn1{current_label})));
         
-        acc_offline_morning{current_label}  = [acc_offline_morning{current_label};offline_acc];
-        acc_online_morning{current_label} = [acc_online_morning{current_label}; online_acc];
-        
-        %update the counters
+        acc_offline_morning_nn1{current_label}  = [acc_offline_morning_nn1{current_label};offline_acc_nn1];
+        acc_online_morning_adapt{current_label} = [acc_online_morning_adapt{current_label}; online_acc_adapt];
         morning_counter_nn1{current_label} = morning_counter_nn1{current_label} + 1;
         
         actual_morning_counter = actual_morning_counter + 1;
@@ -302,7 +302,7 @@ for i = 1:size(feature_matrix_test, 1)
         noon_energy_predictions{current_label} = [noon_energy_predictions{current_label}; energy_prediction];
         
         energy_pred_adapt =  curr_networks_cell_noon{current_label}(curr_features');
-        energy_predictions_online_noon{current_label} = [energy_predictions_online_noon{current_label}; energy_pred_adapt];
+        energy_predictions_by_adapt_noon{current_label} = [energy_predictions_by_adapt_noon{current_label}; energy_pred_adapt];
         curr_buffer_entry = [curr_features, actual_energy];
         
         %Set condition for updating buffer matrix
@@ -321,16 +321,15 @@ for i = 1:size(feature_matrix_test, 1)
         end
         
         %check accuracy with and without online learning 
-        offline_acc = mean(abs(actual_test_noon_cell{current_label}(1:noon_counter_nn1{current_label})' - ...
+        offline_acc_nn1 = mean(abs(actual_test_noon_cell{current_label}(1:noon_counter_nn1{current_label})' - ...
             noon_energy_predictions{current_label}(1:noon_counter_nn1{current_label})));
-        online_acc = mean(abs(actual_test_noon_cell{current_label}(1:noon_counter_nn1{current_label})' - ...
-        energy_predictions_online_noon{current_label}(1:noon_counter_nn1{current_label})));
+        online_acc_adapt = mean(abs(actual_test_noon_cell{current_label}(1:noon_counter_nn1{current_label})' - ...
+        energy_predictions_by_adapt_noon{current_label}(1:noon_counter_nn1{current_label})));
         
-        acc_offline_noon{current_label}  = [acc_offline_noon{current_label};offline_acc];
-        acc_online_noon{current_label} = [acc_online_noon{current_label}; online_acc];
+        acc_offline_noon_nn1{current_label}  = [acc_offline_noon_nn1{current_label};offline_acc_nn1];
+        acc_online_noon_adapt{current_label} = [acc_online_noon_adapt{current_label}; online_acc_adapt];
+        noon_counter_nn1{current_label} = noon_counter_nn1{current_label} + 1;
         
-        %update the counters
-        noon_counter_nn1{current_label} = noon_counter_nn1{current_label} + 1;        
         actual_noon_counter = actual_noon_counter + 1;
         noon_counter = noon_counter + 1;
     end
